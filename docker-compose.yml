@@ -47,14 +47,6 @@ services:
     networks:
       - lpk
 
-  npm:
-    image: node:15.0.1
-    container_name: npm
-    volumes:
-      - ./source:/var/www
-    working_dir: /var/www
-    entrypoint: ['npm']
-
 networks:
   lpk:
     driver: bridge
