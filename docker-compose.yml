@@ -1,0 +1,60 @@
+# Replace all characters that contain 'lpk' to your app name
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: antoniosai
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: lpk
+    container_name: lpk-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./source:/var/www
+    networks:
+      - lpk
+
+  db:
+    image: mysql:5.7.29
+    ports:
+     - 3307:3306
+    container_name: lpk-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: lpk
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: root
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - lpk
+
+  nginx:
+    image: nginx:alpine
+    container_name: lpk-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./source:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - lpk
+
+  npm:
+    image: node:15.0.1
+    container_name: npm
+    volumes:
+      - ./source:/var/www
+    working_dir: /var/www
+    entrypoint: ['npm']
+
+networks:
+  lpk:
+    driver: bridge
